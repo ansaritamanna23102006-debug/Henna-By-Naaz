@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+:root {
+  --background: #FFF8F1;
+  --foreground: #5B0F1A;
+  
+  --primary: #5B0F1A;
+  --secondary: #8B5E3C;
+  --accent: #D4AF37;
+  --bg-ivory: #FFF8F1;
+  --bg-warm: #F8EFE6;
+  --bg-tan: #F2E3D5;
+}
+
+@theme inline {
+  --color-primary: #5B0F1A;
+  --color-secondary: #8B5E3C;
+  --color-accent: #D4AF37;
+  --color-bg-ivory: #FFF8F1;
+  --color-bg-warm: #F8EFE6;
+  --color-bg-tan: #F2E3D5;
+
+  --font-serif: var(--font-playfair), Georgia, serif;
+  --font-script: var(--font-great-vibes), cursive;
+  --font-sans: var(--font-inter), sans-serif;
+}
+
+body {
+  background-color: var(--bg-ivory);
+  color: var(--primary);
+  font-family: var(--font-inter), sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbar for Luxury Aesthetic */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-ivory);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary);
+}
+
+/* Gold Text Glow and Custom Visual Enhancements */
+.text-glow {
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+}
+
+.gold-border-gradient {
+  border-image: linear-gradient(to right, #D4AF37, #8B5E3C, #D4AF37) 1;
+}
+
+.luxury-shadow {
+  box-shadow: 0 20px 40px -15px rgba(91, 15, 26, 0.1);
+}
+
+.luxury-shadow-sm {
+  box-shadow: 0 10px 25px -10px rgba(91, 15, 26, 0.08);
+}

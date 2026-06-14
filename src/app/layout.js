@@ -1,0 +1,42 @@
+import { Playfair_Display, Great_Vibes, Inter } from "next/font/google";
+import "./globals.css";
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-playfair",
+  display: "swap",
+});
+
+const greatVibes = Great_Vibes({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-great-vibes",
+  display: "swap",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+export const metadata = {
+  title: "Henna by Naaz | Premium Luxury Mehendi Artist by Tabassum",
+  description: "Bespoke, premium, and intricate bridal mehendi artistry by Tabassum. Offering professional home-visit services for weddings, engagements, festivals, and special celebrations.",
+  keywords: "Henna by Naaz, Tabassum Mehendi Artist, Home Visit Henna Artist, Luxury Bridal Mehendi, Professional Mehendi Artist, Wedding Henna Designer",
+  authors: [{ name: "Tabassum" }],
+  viewport: "width=device-width, initial-scale=1.0",
+};
+
+export default function RootLayout({ children }) {
+  return (
+    <html
+      lang="en"
+      className={`${playfair.variable} ${greatVibes.variable} ${inter.variable} h-full antialiased scroll-smooth`}
+    >
+      <body className="min-h-full flex flex-col bg-bg-ivory text-primary">
+        {children}
+      </body>
+    </html>
+  );
+}
