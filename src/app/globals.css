@@ -30,6 +30,7 @@ body {
   color: var(--primary);
   font-family: var(--font-inter), sans-serif;
   overflow-x: hidden;
+  user-select: none;
 }
 
 /* Custom Scrollbar for Luxury Aesthetic */
@@ -62,4 +63,11 @@ body {
 
 .luxury-shadow-sm {
   box-shadow: 0 10px 25px -10px rgba(91, 15, 26, 0.08);
+}
+
+/* Prevent image copy and drag */
+img {
+  pointer-events: none;
+  -webkit-user-drag: none;
+  user-select: none;
 }

@@ -13,7 +13,8 @@ import {
   ShieldCheck, 
   Star,
   ChevronRight,
-  Heart
+  Heart,
+  Mail
 } from "lucide-react";
 
 const Instagram = ({ className }) => (
@@ -35,31 +36,31 @@ export default function Home() {
     {
       title: "Bridal Mehendi",
       desc: "Intricate, heavy, and bespoke traditional patterns extending from hands to elbows and feet, detailing personal love stories and traditional motifs.",
-      price: "From $250",
+      price: "From ₹5,000",
       icon: Heart,
     },
     {
       title: "Engagement Mehendi",
       desc: "Elegant and graceful designs, balancing modern aesthetics with classic motifs. Perfect for making your rings stand out.",
-      price: "From $120",
+      price: "From ₹2,500",
       icon: Sparkles,
     },
     {
       title: "Family Mehendi",
       desc: "Delicate and beautiful party designs tailored for bridesmaids, wedding guests, and family members during celebrations.",
-      price: "From $40/hand",
+      price: "From ₹500/hand",
       icon: Star,
     },
     {
       title: "Festival Mehendi",
       desc: "Traditional designs for Eid, Karwa Chauth, Diwali, and Teej. Infusing festive joy and color onto your palms.",
-      price: "From $30/palm",
+      price: "From ₹300/palm",
       icon: Calendar,
     },
     {
       title: "Baby Shower Mehendi",
       desc: "Charming, customized designs featuring motherhood symbols, cute cradles, and elegant borders for the mom-to-be.",
-      price: "From $100",
+      price: "From ₹2,000",
       icon: ShieldCheck,
     },
     {
@@ -225,6 +226,7 @@ export default function Home() {
                 src="/images/hero_mehendi.png"
                 alt="Luxury Henna Design"
                 fill
+                sizes="(max-width: 768px) 320px, 350px"
                 className="object-cover transition-transform duration-700 group-hover:scale-105"
                 priority
               />
@@ -267,6 +269,7 @@ export default function Home() {
                   src="/images/about_tabassum.png"
                   alt="Tabassum - Henna by Naaz Founder"
                   fill
+                  sizes="(max-width: 768px) 320px, 350px"
                   className="object-cover"
                 />
               </div>
@@ -406,6 +409,7 @@ export default function Home() {
                   src={item.src}
                   alt={item.title}
                   fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                 />
                 
@@ -598,7 +602,7 @@ export default function Home() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a
-              href="https://wa.me/919999999999?text=Hello%20Tabassum,%20I%20would%20like%20to%20book%20a%20mehendi%20session."
+              href="https://wa.me/919167600320?text=Hello%20Tabassum,%20I%20would%20like%20to%20book%20a%20mehendi%20session."
               target="_blank"
               rel="noopener noreferrer"
               className="w-full sm:w-auto px-8 py-4 bg-accent hover:bg-bg-ivory text-primary font-sans uppercase text-sm tracking-widest font-semibold border border-accent hover:border-bg-ivory transition-all duration-300 shadow-lg flex items-center justify-center gap-2"
@@ -607,7 +611,7 @@ export default function Home() {
               WhatsApp Now
             </a>
             <a
-              href="tel:+919999999999"
+              href="tel:+919167600320"
               className="w-full sm:w-auto px-8 py-4 bg-transparent hover:bg-bg-ivory/10 text-bg-ivory border border-bg-ivory/40 hover:border-bg-ivory transition-all duration-300 font-sans uppercase text-sm tracking-widest flex items-center justify-center gap-2"
             >
               <Phone className="w-4 h-4" />
@@ -640,7 +644,7 @@ export default function Home() {
                 <Instagram className="w-4 h-4" />
               </a>
               <a 
-                href="https://wa.me/919999999999" 
+                href="https://wa.me/919167600320" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="w-8 h-8 rounded-full border border-bg-warm/30 flex items-center justify-center hover:text-accent hover:border-accent transition-colors"
@@ -673,11 +677,17 @@ export default function Home() {
               </p>
               <p className="flex items-center gap-2">
                 <Phone className="w-4 h-4 text-accent shrink-0" />
-                +91 99999 99999
+                +91 91676 00320
               </p>
               <p className="flex items-center gap-2">
                 <MessageCircle className="w-4 h-4 text-accent shrink-0" />
-                WhatsApp: +91 99999 99999
+                WhatsApp: +91 91676 00320
+              </p>
+              <p className="flex items-center gap-2">
+                <Mail className="w-4 h-4 text-accent shrink-0" />
+                <a href="mailto:heenabynaaz20@gmail.com" className="hover:text-accent transition-colors">
+                  heenabynaaz20@gmail.com
+                </a>
               </p>
             </div>
           </div>
