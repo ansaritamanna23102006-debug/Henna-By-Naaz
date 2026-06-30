@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { 
@@ -35,63 +35,131 @@ const InstagramIcon = ({ className }) => (
 );
 
 export default function Home() {
-  
-  // Featured services subset
-  const featuredServices = [
-    {
-      title: "Bridal Mehendi",
-      desc: "Intricate, heavy, and bespoke traditional patterns extending from hands to elbows and feet, detailing personal love stories and traditional motifs.",
-      price: "From ₹5,000",
-      icon: Heart,
-    },
-    {
-      title: "Engagement Mehendi",
-      desc: "Elegant and graceful designs, balancing modern aesthetics with classic motifs. Perfect for making your rings stand out.",
-      price: "From ₹2,500",
-      icon: Sparkles,
-    },
-    {
-      title: "Custom Mehendi Designs",
-      desc: "Fully personalized creations. Bring your reference, portrait design, or unique concept, and see it crafted with precision.",
-      price: "Custom Quote",
-      icon: ChevronRight,
-    },
-  ];
+  const [heroData, setHeroData] = useState(null);
+  const [aboutData, setAboutData] = useState(null);
+  const [servicesData, setServicesData] = useState(null);
+  const [galleryData, setGalleryData] = useState(null);
+  const [testimonialsData, setTestimonialsData] = useState(null);
 
-  // Featured portfolio subset
-  const featuredPortfolio = [
-    {
-      src: "/images/portfolio_bridal.png",
-      title: "Royal Bridal Artistry",
-      category: "Bridal",
-    },
-    {
-      src: "/images/portfolio_arabic.png",
-      title: "Contemporary Silhouette",
-      category: "Arabic",
-    },
-    {
-      src: "/images/portfolio_traditional.png",
-      title: "Intricate Heritage Pattern",
-      category: "Traditional",
-    },
-  ];
+  useEffect(() => {
+    // Fetch Hero & About content
+    fetch("/api/admin/content")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.content) {
+          if (data.content.hero) setHeroData(data.content.hero);
+          if (data.content.about) setAboutData(data.content.about);
+        }
+      })
+      .catch((err) => console.log("Failed to load CMS content:", err));
 
-  // Featured reviews
-  const featuredTestimonials = [
-    {
-      text: "Tabassum made my wedding day extra special. The bridal mehendi she did was so intricate, and the stain turned out to be a gorgeous dark mahogany! Everyone kept asking who my artist was.",
-      name: "Naazneen Patel",
-      role: "Bridal Client",
-      rating: 5,
-    },
-    {
-      text: "Extremely professional, punctual, and patient. She listened to all my ideas and custom-made a portrait design that was perfect. Having her come home was so convenient!",
-      name: "Ananya Sharma",
-      role: "Engagement Client",
-      rating: 5,
-    },
-  ];
+    // Fetch Services
+    fetch("/api/admin/services?public=true")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.services && data.services.length > 0) {
+          setServicesData(data.services.slice(0, 3));
+        }
+      })
+      .catch((err) => console.log("Failed to load CMS services:", err));
+
+    // Fetch Gallery
+    fetch("/api/admin/gallery")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.images && data.images.length > 0) {
+          setGalleryData(data.images.slice(0, 3));
+        }
+      })
+      .catch((err) => console.log("Failed to load CMS gallery:", err));
+
+    // Fetch Testimonials
+    fetch("/api/admin/testimonials?public=true")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.testimonials && data.testimonials.length > 0) {
+          setTestimonialsData(data.testimonials.filter((t) => t.isFeatured).slice(0, 2));
+        }
+      })
+      .catch((err) => console.log("Failed to load CMS testimonials:", err));
+  }, []);
+
+  // Featured services subset with dynamic data fallback
+  const displayServices = servicesData
+    ? servicesData.map((s) => ({
+        title: s.title,
+        desc: s.description,
+        price: s.price,
+        icon: Sparkles,
+      }))
+    : [
+        {
+          title: "Bridal Mehendi",
+          desc: "Intricate, heavy, and bespoke traditional patterns extending from hands to elbows and feet, detailing personal love stories and traditional motifs.",
+          price: "From ₹5,000",
+          icon: Heart,
+        },
+        {
+          title: "Engagement Mehendi",
+          desc: "Elegant and graceful designs, balancing modern aesthetics with classic motifs. Perfect for making your rings stand out.",
+          price: "From ₹2,500",
+          icon: Sparkles,
+        },
+        {
+          title: "Custom Mehendi Designs",
+          desc: "Fully personalized creations. Bring your reference, portrait design, or unique concept, and see it crafted with precision.",
+          price: "Custom Quote",
+          icon: ChevronRight,
+        },
+      ];
+
+  // Featured portfolio subset with dynamic fallback
+  const displayPortfolio = galleryData
+    ? galleryData.map((g) => ({
+        src: g.url,
+        title: g.altText || "Luxury Henna Design",
+        category: g.category,
+      }))
+    : [
+        {
+          src: "/images/portfolio_bridal.png",
+          title: "Royal Bridal Artistry",
+          category: "Bridal",
+        },
+        {
+          src: "/images/portfolio_arabic.png",
+          title: "Contemporary Silhouette",
+          category: "Arabic",
+        },
+        {
+          src: "/images/portfolio_traditional.png",
+          title: "Intricate Heritage Pattern",
+          category: "Traditional",
+        },
+      ];
+
+  // Featured reviews with dynamic fallback
+  const displayTestimonials = testimonialsData
+    ? testimonialsData.map((t) => ({
+        text: t.review,
+        name: t.clientName,
+        role: `${t.eventType || "Bridal"} Client`,
+        rating: t.rating || 5,
+      }))
+    : [
+        {
+          text: "Tabassum made my wedding day extra special. The bridal mehendi she did was so intricate, and the stain turned out to be a gorgeous dark mahogany! Everyone kept asking who my artist was.",
+          name: "Naazneen Patel",
+          role: "Bridal Client",
+          rating: 5,
+        },
+        {
+          text: "Extremely professional, punctual, and patient. She listened to all my ideas and custom-made a portrait design that was perfect. Having her come home was so convenient!",
+          name: "Ananya Sharma",
+          role: "Engagement Client",
+          rating: 5,
+        },
+      ];
 
   // Instagram feed simulator
   const instagramFeed = [
@@ -131,22 +199,28 @@ export default function Home() {
             transition={{ duration: 0.8 }}
           >
             <span className="font-script text-accent text-3xl md:text-5xl mb-4 tracking-wide">
-              Traditional Elegance, Modern Luxury
+              {heroData?.subHeading || "Traditional Elegance, Modern Luxury"}
             </span>
             <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-primary leading-[1.15] mb-6">
-              Bringing Art To Your Hands,<br />
-              <span className="text-secondary">Beauty To Your Celebrations</span>
+              {heroData?.heading ? (
+                <span className="block whitespace-pre-line">{heroData.heading}</span>
+              ) : (
+                <>
+                  Bringing Art To Your Hands,<br />
+                  <span className="text-secondary">Beauty To Your Celebrations</span>
+                </>
+              )}
             </h1>
             <p className="font-sans text-md md:text-lg text-primary/80 max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed">
-              Professional Mehendi Artist with <span className="font-semibold text-accent">4+ Years of Experience</span>, creating elegant, handcrafted, and intricate henna designs in the comfort of your home.
+              {heroData?.description || "Professional Mehendi Artist with 4+ Years of Experience, creating elegant, handcrafted, and intricate henna designs in the comfort of your home."}
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 w-full sm:w-auto">
               <Button
                 variant="primary"
-                href="/contact"
+                href={heroData?.ctaButtonLink || "/contact"}
                 className="w-full sm:w-auto"
               >
-                Book Appointment
+                {heroData?.ctaButtonText || "Book Appointment"}
               </Button>
               <Button
                 variant="outline"
@@ -177,7 +251,7 @@ export default function Home() {
               </div>
               
               <Image
-                src="/images/hero_mehendi.png"
+                src={heroData?.heroImage || "/images/hero_mehendi.png"}
                 alt="Luxury Henna Design"
                 fill
                 sizes="(max-width: 768px) 320px, 350px"
@@ -219,7 +293,7 @@ export default function Home() {
             >
               <div className="relative w-full h-full overflow-hidden">
                 <Image
-                  src="/images/about_tabassum.png"
+                  src={aboutData?.aboutImage || "/images/about_tabassum.png"}
                   alt="Tabassum - Henna by Naaz Founder"
                   fill
                   sizes="(max-width: 768px) 320px, 350px"
@@ -237,16 +311,16 @@ export default function Home() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <span className="font-script text-accent text-3xl md:text-4xl mb-2">Hello, I'm Tabassum</span>
+            <span className="font-script text-accent text-3xl md:text-4xl mb-2">{aboutData?.subHeading || "Hello, I'm Tabassum"}</span>
             <h2 className="font-serif text-3xl md:text-5xl font-bold tracking-tight text-primary mb-6">
-              Founder of Henna by Naaz
+              {aboutData?.heading || "Founder of Henna by Naaz"}
             </h2>
             <div className="w-16 h-[2px] bg-accent mx-auto lg:mx-0 mb-8" />
             <p className="font-sans text-md md:text-lg text-primary/80 mb-6 leading-relaxed">
-              For over 4 years, I have been bringing beautiful, custom mehendi artistry directly to my clients' homes, making weddings, engagements, festivals and celebrations even more memorable.
+              {aboutData?.description || "For over 4 years, I have been bringing beautiful, custom mehendi artistry directly to my clients' homes, making weddings, engagements, festivals and celebrations even more memorable."}
             </p>
             <p className="font-sans text-md md:text-lg text-primary/80 mb-8 leading-relaxed font-light italic">
-              "My goal is not just applying mehendi, but creating designs that become an integral, beautiful part of your most special life moments."
+              "{aboutData?.quote || "My goal is not just applying mehendi, but creating designs that become an integral, beautiful part of your most special life moments."}"
             </p>
             
             <div className="mb-10">
@@ -258,21 +332,21 @@ export default function Home() {
             {/* Stats Counter Grid */}
             <div className="grid grid-cols-3 gap-6 pt-6 border-t border-accent/20">
               <div className="text-center lg:text-left">
-                <p className="mb-1">
-                  <StatsCounter value="4" suffix="+" />
-                </p>
+                <div className="mb-1">
+                  <StatsCounter value={aboutData?.experience ? aboutData.experience.replace(/\D/g, "") : "4"} suffix="+" />
+                </div>
                 <p className="font-sans text-[10px] sm:text-xs tracking-wider uppercase text-secondary font-semibold">Years Exp</p>
               </div>
               <div className="text-center lg:text-left">
-                <p className="mb-1">
-                  <StatsCounter value="500" suffix="+" />
-                </p>
+                <div className="mb-1">
+                  <StatsCounter value={aboutData?.happyBrides ? aboutData.happyBrides.replace(/\D/g, "") : "500"} suffix="+" />
+                </div>
                 <p className="font-sans text-[10px] sm:text-xs tracking-wider uppercase text-secondary font-semibold">Happy Brides</p>
               </div>
               <div className="text-center lg:text-left">
-                <p className="mb-1">
-                  <StatsCounter value="120" suffix="+" />
-                </p>
+                <div className="mb-1">
+                  <StatsCounter value={aboutData?.eventsCovered ? aboutData.eventsCovered.replace(/\D/g, "") : "120"} suffix="+" />
+                </div>
                 <p className="font-sans text-[10px] sm:text-xs tracking-wider uppercase text-secondary font-semibold">Events Covered</p>
               </div>
             </div>
@@ -292,7 +366,7 @@ export default function Home() {
 
           {/* Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredServices.map((service, index) => (
+            {displayServices.map((service, index) => (
               <ServiceCard
                 key={service.title}
                 title={service.title}
@@ -325,9 +399,9 @@ export default function Home() {
 
           {/* Balanced Gallery Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {featuredPortfolio.map((item, index) => (
+            {displayPortfolio.map((item, index) => (
               <GalleryCard
-                key={item.title}
+                key={item.title + index}
                 src={item.src}
                 title={item.title}
                 category={item.category}
@@ -361,7 +435,7 @@ export default function Home() {
 
           {/* Testimonial Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {featuredTestimonials.map((test, index) => (
+            {displayTestimonials.map((test, index) => (
               <TestimonialCard
                 key={test.name}
                 text={test.text}

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Star, Quote, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import Image from "next/image";
@@ -11,8 +11,20 @@ import { CornerOrnament, GoldMandala, SectionDivider } from "@/components/Mandal
 
 export default function TestimonialsPage() {
   const [slideIndex, setSlideIndex] = useState(0);
+  const [dbTestimonials, setDbTestimonials] = useState(null);
 
-  const testimonials = [
+  useEffect(() => {
+    fetch("/api/admin/testimonials?public=true")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.testimonials && data.testimonials.length > 0) {
+          setDbTestimonials(data.testimonials);
+        }
+      })
+      .catch((err) => console.log("Failed to load CMS reviews:", err));
+  }, []);
+
+  const defaultTestimonials = [
     {
       text: "Tabassum made my wedding day extra special. The bridal mehendi she did was so intricate, and the stain turned out to be a gorgeous dark mahogany! Everyone kept asking who my artist was.",
       name: "Naazneen Patel",
@@ -56,6 +68,26 @@ export default function TestimonialsPage() {
       image: "/images/about_tabassum.png"
     }
   ];
+
+  const testimonials = useMemo(() => {
+    if (dbTestimonials) {
+      return dbTestimonials.map((t) => ({
+        text: t.review,
+        name: t.clientName,
+        role: `${t.eventType || "Bridal"} Client`,
+        rating: t.rating || 5,
+        image: t.image || "",
+      }));
+    }
+    return defaultTestimonials;
+  }, [dbTestimonials]);
+
+  // Adjust slideIndex if testimonials length changes dynamically
+  useEffect(() => {
+    if (slideIndex >= testimonials.length) {
+      setSlideIndex(0);
+    }
+  }, [testimonials, slideIndex]);
 
   const handleNext = () => {
     setSlideIndex((prev) => (prev + 1) % testimonials.length);
@@ -109,80 +141,82 @@ export default function TestimonialsPage() {
         </div>
 
         {/* Animated Slider Showcase */}
-        <div className="mb-20 bg-bg-warm/30 border border-accent/15 p-8 md:p-12 relative max-w-4xl mx-auto luxury-shadow">
-          <div className="absolute top-4 left-4 text-accent/20">
-            <Quote className="w-16 h-16 transform -scale-y-100" />
-          </div>
+        {testimonials.length > 0 && testimonials[slideIndex] && (
+          <div className="mb-20 bg-bg-warm/30 border border-accent/15 p-8 md:p-12 relative max-w-4xl mx-auto luxury-shadow">
+            <div className="absolute top-4 left-4 text-accent/20">
+              <Quote className="w-16 h-16 transform -scale-y-100" />
+            </div>
 
-          <div className="relative min-h-[250px] flex flex-col justify-between items-center text-center px-4 md:px-12">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={slideIndex}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.4 }}
-                className="flex flex-col items-center"
-              >
-                {/* Rating */}
-                <div className="flex text-accent gap-1 mb-6">
-                  {Array.from({ length: testimonials[slideIndex].rating }).map((_, i) => (
-                    <Star key={i} className="w-5 h-5 fill-accent" />
-                  ))}
-                </div>
+            <div className="relative min-h-[250px] flex flex-col justify-between items-center text-center px-4 md:px-12">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={slideIndex}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.4 }}
+                  className="flex flex-col items-center"
+                >
+                  {/* Rating */}
+                  <div className="flex text-accent gap-1 mb-6">
+                    {Array.from({ length: testimonials[slideIndex].rating }).map((_, i) => (
+                      <Star key={i} className="w-5 h-5 fill-accent" />
+                    ))}
+                  </div>
 
-                {/* Review Text */}
-                <p className="font-serif text-lg sm:text-xl md:text-2xl text-primary leading-relaxed mb-6 italic max-w-2xl">
-                  "{testimonials[slideIndex].text}"
-                </p>
+                  {/* Review Text */}
+                  <p className="font-serif text-lg sm:text-xl md:text-2xl text-primary leading-relaxed mb-6 italic max-w-2xl">
+                    "{testimonials[slideIndex].text}"
+                  </p>
 
-                {/* Profile Pic Placeholder or Initial Circle */}
-                <div className="relative w-12 h-12 rounded-full overflow-hidden border border-accent/30 mb-3 bg-bg-ivory flex items-center justify-center font-serif text-accent font-bold">
-                  {testimonials[slideIndex].image ? (
-                    <Image
-                      src={testimonials[slideIndex].image}
-                      alt={testimonials[slideIndex].name}
-                      fill
-                      className="object-cover"
-                      sizes="48px"
-                    />
-                  ) : (
-                    testimonials[slideIndex].name[0]
-                  )}
-                </div>
+                  {/* Profile Pic Placeholder or Initial Circle */}
+                  <div className="relative w-12 h-12 rounded-full overflow-hidden border border-accent/30 mb-3 bg-bg-ivory flex items-center justify-center font-serif text-accent font-bold">
+                    {testimonials[slideIndex].image ? (
+                      <Image
+                        src={testimonials[slideIndex].image}
+                        alt={testimonials[slideIndex].name}
+                        fill
+                        className="object-cover"
+                        sizes="48px"
+                      />
+                    ) : (
+                      testimonials[slideIndex].name[0]
+                    )}
+                  </div>
 
-                {/* Client Metadata */}
-                <h4 className="font-serif text-base font-bold text-primary">
-                  {testimonials[slideIndex].name}
-                </h4>
-                <span className="font-sans text-[10px] tracking-widest uppercase text-secondary font-semibold">
-                  {testimonials[slideIndex].role}
+                  {/* Client Metadata */}
+                  <h4 className="font-serif text-base font-bold text-primary">
+                    {testimonials[slideIndex].name}
+                  </h4>
+                  <span className="font-sans text-[10px] tracking-widest uppercase text-secondary font-semibold">
+                    {testimonials[slideIndex].role}
+                  </span>
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Slider Navigation */}
+              <div className="flex items-center gap-6 mt-8">
+                <button
+                  onClick={handlePrev}
+                  className="w-10 h-10 rounded-full border border-accent/20 flex items-center justify-center text-primary hover:bg-accent/10 hover:border-accent hover:text-accent transition-colors cursor-pointer"
+                  aria-label="Previous Review"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <span className="font-sans text-xs text-primary/60">
+                  {slideIndex + 1} / {testimonials.length}
                 </span>
-              </motion.div>
-            </AnimatePresence>
-
-            {/* Slider Navigation */}
-            <div className="flex items-center gap-6 mt-8">
-              <button
-                onClick={handlePrev}
-                className="w-10 h-10 rounded-full border border-accent/20 flex items-center justify-center text-primary hover:bg-accent/10 hover:border-accent hover:text-accent transition-colors"
-                aria-label="Previous Review"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <span className="font-sans text-xs text-primary/60">
-                {slideIndex + 1} / {testimonials.length}
-              </span>
-              <button
-                onClick={handleNext}
-                className="w-10 h-10 rounded-full border border-accent/20 flex items-center justify-center text-primary hover:bg-accent/10 hover:border-accent hover:text-accent transition-colors"
-                aria-label="Next Review"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
+                <button
+                  onClick={handleNext}
+                  className="w-10 h-10 rounded-full border border-accent/20 flex items-center justify-center text-primary hover:bg-accent/10 hover:border-accent hover:text-accent transition-colors cursor-pointer"
+                  aria-label="Next Review"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Reviews Grid */}
         <div>

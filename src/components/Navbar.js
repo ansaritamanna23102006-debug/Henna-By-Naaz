@@ -8,7 +8,12 @@ import { motion, AnimatePresence } from "framer-motion";
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isBtnHovered, setIsBtnHovered] = useState(false);
   const pathname = usePathname();
+  
+  if (pathname && pathname.startsWith("/admin")) {
+    return null;
+  }
   
   // Hover states for desktop dropdowns
   const [activeDropdown, setActiveDropdown] = useState(null); // 'services' | 'more' | null
@@ -196,7 +201,14 @@ export default function Navbar() {
             
             <Link
               href="/contact"
-              className="ml-2 px-6 py-3 bg-primary hover:bg-accent text-bg-ivory hover:text-primary font-sans text-xs tracking-widest uppercase border border-primary hover:border-accent transition-all duration-300 shadow-md font-semibold"
+              onMouseEnter={() => setIsBtnHovered(true)}
+              onMouseLeave={() => setIsBtnHovered(false)}
+              style={{
+                backgroundColor: isBtnHovered ? "transparent" : "#D4AF37",
+                color: isBtnHovered ? "#D4AF37" : "#5B0F1A",
+                borderColor: "#D4AF37",
+              }}
+              className="ml-2 px-6 py-3 border font-sans text-xs tracking-widest uppercase transition-all duration-300 shadow-md font-semibold cursor-pointer"
             >
               Book Session
             </Link>

@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { 
@@ -20,6 +20,19 @@ import SectionHeading from "@/components/SectionHeading";
 import Button from "@/components/Button";
 
 export default function AboutPage() {
+  const [aboutData, setAboutData] = useState(null);
+
+  useEffect(() => {
+    fetch("/api/admin/content")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.content && data.content.about) {
+          setAboutData(data.content.about);
+        }
+      })
+      .catch((err) => console.log("Failed to load CMS content:", err));
+  }, []);
+
   const whyChooseMe = [
     {
       title: "100% Organic Henna Paste",
@@ -67,7 +80,7 @@ export default function AboutPage() {
         {/* Page Title Section */}
         <div className="text-center mb-16">
           <SectionHeading
-            subtitle="The Artist & Founder"
+            subtitle={aboutData?.subHeading || "The Artist & Founder"}
             title="Story of Henna by Naaz"
             description="Discover the passion, experience, and artistic dedication behind custom home-visit henna."
           />
@@ -85,7 +98,7 @@ export default function AboutPage() {
             >
               <div className="relative w-full h-full overflow-hidden">
                 <Image
-                  src="/images/about_tabassum.png"
+                  src={aboutData?.aboutImage || "/images/about_tabassum.png"}
                   alt="Tabassum - Henna by Naaz Founder"
                   fill
                   sizes="(max-width: 768px) 100vw, 350px"
@@ -103,29 +116,37 @@ export default function AboutPage() {
             transition={{ duration: 0.6 }}
           >
             <h3 className="font-serif text-2xl sm:text-3xl font-bold text-primary mb-4">
-              Crafting Memories Through Henna
+              {aboutData?.heading || "Founder of Henna by Naaz"}
             </h3>
-            <p className="leading-relaxed">
-              Hello, I am **Tabassum**, the founder and head artist of Henna by Naaz. My journey with henna began years ago as a creative passion, drawing inspiration from rich Indian traditions and complex geometric layouts. What started as sketching layouts for friends quickly grew into a lifelong dedication to celebratory art.
-            </p>
-            <p className="leading-relaxed">
-              For over **4 years**, I have specialized in bringing bespoke bridal and festive henna directly to clients' homes. I believe that mehendi is not just a cosmetic application, but a sacred, beautiful ritual that symbolizes joy, love, and new beginnings.
-            </p>
-            <p className="leading-relaxed">
-              Each bridal layout I sketch is a collaborative experience. By working closely with you, I weave elements of your personal love story—whether it's your partner's initials, your wedding date, or custom portraits—directly into Rajasthan's heritage structures or contemporary Arabic lines.
-            </p>
+            {aboutData?.description ? (
+              <p className="leading-relaxed whitespace-pre-line">
+                {aboutData.description}
+              </p>
+            ) : (
+              <>
+                <p className="leading-relaxed">
+                  Hello, I am **Tabassum**, the founder and head artist of Henna by Naaz. My journey with henna began years ago as a creative passion, drawing inspiration from rich Indian traditions and complex geometric layouts. What started as sketching layouts for friends quickly grew into a lifelong dedication to celebratory art.
+                </p>
+                <p className="leading-relaxed">
+                  For over **4 years**, I have specialized in bringing bespoke bridal and festive henna directly to clients' homes. I believe that mehendi is not just a cosmetic application, but a sacred, beautiful ritual that symbolizes joy, love, and new beginnings.
+                </p>
+                <p className="leading-relaxed">
+                  Each bridal layout I sketch is a collaborative experience. By working closely with you, I weave elements of your personal love story—whether it's your partner's initials, your wedding date, or custom portraits—directly into Rajasthan's heritage structures or contemporary Arabic lines.
+                </p>
+              </>
+            )}
 
             <div className="grid grid-cols-3 gap-6 pt-6 border-t border-accent/20 max-w-md mx-auto lg:mx-0">
               <div>
-                <StatsCounter value="4" suffix="+" />
+                <StatsCounter value={aboutData?.experience ? aboutData.experience.replace(/\D/g, "") : "4"} suffix="+" />
                 <p className="text-[10px] tracking-wider uppercase text-secondary font-semibold mt-1">Years Exp</p>
               </div>
               <div>
-                <StatsCounter value="500" suffix="+" />
+                <StatsCounter value={aboutData?.happyBrides ? aboutData.happyBrides.replace(/\D/g, "") : "500"} suffix="+" />
                 <p className="text-[10px] tracking-wider uppercase text-secondary font-semibold mt-1">Happy Brides</p>
               </div>
               <div>
-                <StatsCounter value="120" suffix="+" />
+                <StatsCounter value={aboutData?.eventsCovered ? aboutData.eventsCovered.replace(/\D/g, "") : "120"} suffix="+" />
                 <p className="text-[10px] tracking-wider uppercase text-secondary font-semibold mt-1">Events Done</p>
               </div>
             </div>

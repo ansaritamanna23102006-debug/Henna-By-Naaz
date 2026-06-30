@@ -94,17 +94,37 @@ function ContactForm() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
 
     setIsSubmitting(true);
     
-    // Simulate API Submission
-    setTimeout(() => {
+    try {
+      const res = await fetch("/api/admin/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          phone: formData.phone,
+          email: formData.email,
+          eventDate: formData.date,
+          location: formData.location,
+          service: formData.occasion,
+          notes: formData.message
+        })
+      });
+      if (res.ok) {
+        setSuccess(true);
+      } else {
+        const json = await res.json();
+        alert(json.error || "Failed to submit booking request. Please WhatsApp us.");
+      }
+    } catch (err) {
+      alert("Failed to submit request. Please WhatsApp us.");
+    } finally {
       setIsSubmitting(false);
-      setSuccess(true);
-    }, 1200);
+    }
   };
 
   // Helper to generate WhatsApp URL with form content pre-filled

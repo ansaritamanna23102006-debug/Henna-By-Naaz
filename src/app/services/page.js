@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { 
   Heart, 
   Sparkles, 
@@ -18,7 +18,20 @@ import ServiceCard from "@/components/ServiceCard";
 import { GoldMandala, CornerOrnament, SectionDivider } from "@/components/Mandalas";
 
 export default function ServicesPage() {
-  const allServices = [
+  const [dbServices, setDbServices] = useState(null);
+
+  useEffect(() => {
+    fetch("/api/admin/services?public=true")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.services && data.services.length > 0) {
+          setDbServices(data.services);
+        }
+      })
+      .catch((err) => console.log("Failed to load CMS services:", err));
+  }, []);
+
+  const defaultServices = [
     {
       title: "Bridal Mehendi",
       desc: "Bespoke, heavy traditional patterns covering hands to elbows and feet, weaving in personalized details like partner portraits, wedding dates, and personal love stories.",
@@ -111,6 +124,18 @@ export default function ServicesPage() {
     },
   ];
 
+  const allServices = dbServices
+    ? dbServices.map((s) => ({
+        title: s.title,
+        desc: s.description,
+        price: s.price,
+        image: s.featuredImage || "/images/portfolio_bridal.png",
+        duration: s.duration || "N/A",
+        suitableFor: s.category || "Celebration",
+        icon: Sparkles, // fallback icon
+      }))
+    : defaultServices;
+
   return (
     <div className="flex-1 bg-bg-ivory pt-32 pb-20 relative selection:bg-primary selection:text-bg-ivory overflow-hidden">
       
@@ -135,7 +160,7 @@ export default function ServicesPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {allServices.map((service, index) => (
             <ServiceCard
-              key={service.title}
+              key={service.title + index}
               title={service.title}
               desc={service.desc}
               price={service.price}

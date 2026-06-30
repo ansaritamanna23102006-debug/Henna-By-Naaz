@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo, useRef } from "react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { 
@@ -23,69 +23,91 @@ export default function GalleryPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const galleryGridRef = useRef(null);
 
+  const [dbGallery, setDbGallery] = useState(null);
+
+  useEffect(() => {
+    fetch("/api/admin/gallery")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.images && data.images.length > 0) {
+          setDbGallery(data.images);
+        }
+      })
+      .catch((err) => console.log("Failed to load CMS gallery:", err));
+  }, []);
+
   // Gallery items metadata
-  const galleryItems = [
-    {
-      src: "/images/portfolio_bridal.png",
-      title: "Royal Rajasthani Heritage",
-      category: "Bridal",
-    },
-    {
-      src: "/images/portfolio_arabic.png",
-      title: "Bold Silhouette Outline",
-      category: "Arabic",
-    },
-    {
-      src: "/images/portfolio_traditional.png",
-      title: "Intricate Peacock Jaal",
-      category: "Traditional",
-    },
-    {
-      src: "/images/portfolio_festival.png",
-      title: "Eid Floral Hand Ornament",
-      category: "Festival",
-    },
-    {
-      src: "/images/portfolio_minimalist.png",
-      title: "Symmetric Mandala Accent",
-      category: "Traditional",
-    },
-    {
-      src: "/images/portfolio_feet.png",
-      title: "Bridal Elephant Motif",
-      category: "Feet",
-    },
-    {
-      src: "/images/hero_mehendi.png",
-      title: "Custom Portrait Details",
-      category: "Portrait",
-    },
-    {
-      src: "/images/portfolio_bridal.png",
-      title: "Classic Bride & Groom",
-      category: "Portrait",
-    },
-    {
-      src: "/images/portfolio_feet.png",
-      title: "Detailed Lotus Feet Accent",
-      category: "Feet",
-    },
-    {
-      src: "/images/portfolio_arabic.png",
-      title: "Vibrant Leafy Wrist Cuff",
-      category: "Arabic",
-    },
-    {
-      src: "/images/portfolio_festival.png",
-      title: "Diwali Floral Pattern",
-      category: "Festival",
-    },
-    {
-      src: "/images/hero_mehendi.png",
-      title: "Bridal Classic Mandala",
-      category: "Bridal",
-    },
-  ];
+  const galleryItems = useMemo(() => {
+    if (dbGallery) {
+      return dbGallery.map((g) => ({
+        src: g.url,
+        title: g.altText || "Luxury Henna Design",
+        category: g.category || "Bridal",
+      }));
+    }
+    return [
+      {
+        src: "/images/portfolio_bridal.png",
+        title: "Royal Rajasthani Heritage",
+        category: "Bridal",
+      },
+      {
+        src: "/images/portfolio_arabic.png",
+        title: "Bold Silhouette Outline",
+        category: "Arabic",
+      },
+      {
+        src: "/images/portfolio_traditional.png",
+        title: "Intricate Peacock Jaal",
+        category: "Traditional",
+      },
+      {
+        src: "/images/portfolio_festival.png",
+        title: "Eid Floral Hand Ornament",
+        category: "Festival",
+      },
+      {
+        src: "/images/portfolio_minimalist.png",
+        title: "Symmetric Mandala Accent",
+        category: "Traditional",
+      },
+      {
+        src: "/images/portfolio_feet.png",
+        title: "Bridal Elephant Motif",
+        category: "Feet",
+      },
+      {
+        src: "/images/hero_mehendi.png",
+        title: "Custom Portrait Details",
+        category: "Portrait",
+      },
+      {
+        src: "/images/portfolio_bridal.png",
+        title: "Classic Bride & Groom",
+        category: "Portrait",
+      },
+      {
+        src: "/images/portfolio_feet.png",
+        title: "Detailed Lotus Feet Accent",
+        category: "Feet",
+      },
+      {
+        src: "/images/portfolio_arabic.png",
+        title: "Vibrant Leafy Wrist Cuff",
+        category: "Arabic",
+      },
+      {
+        src: "/images/portfolio_festival.png",
+        title: "Diwali Floral Pattern",
+        category: "Festival",
+      },
+      {
+        src: "/images/hero_mehendi.png",
+        title: "Bridal Classic Mandala",
+        category: "Bridal",
+      },
+    ];
+  }, [dbGallery]);
 
   const categories = ["All", "Bridal", "Arabic", "Traditional", "Portrait", "Feet", "Festival"];
 
@@ -94,8 +116,8 @@ export default function GalleryPage() {
   // Filter items
   const filteredItems = useMemo(() => {
     if (selectedFilter === "All") return galleryItems;
-    return galleryItems.filter(item => item.category === selectedFilter);
-  }, [selectedFilter]);
+    return galleryItems.filter(item => item.category.toLowerCase() === selectedFilter.toLowerCase());
+  }, [selectedFilter, galleryItems]);
 
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
 
@@ -300,14 +322,16 @@ export default function GalleryPage() {
             </button>
 
             {/* Lightbox Metadata Header */}
-            <div className="absolute top-6 left-6 text-bg-ivory max-w-[calc(100%-80px)] z-40">
-              <span className="font-script text-accent text-2xl tracking-wider block mb-1">
-                {galleryItems[lightboxIndex].category}
-              </span>
-              <h3 className="font-serif text-lg sm:text-xl font-bold">
-                {galleryItems[lightboxIndex].title}
-              </h3>
-            </div>
+            {galleryItems[lightboxIndex] && (
+              <div className="absolute top-6 left-6 text-bg-ivory max-w-[calc(100%-80px)] z-40">
+                <span className="font-script text-accent text-2xl tracking-wider block mb-1">
+                  {galleryItems[lightboxIndex].category}
+                </span>
+                <h3 className="font-serif text-lg sm:text-xl font-bold">
+                  {galleryItems[lightboxIndex].title}
+                </h3>
+              </div>
+            )}
 
             {/* Navigation buttons */}
             <button
@@ -345,35 +369,39 @@ export default function GalleryPage() {
             </button>
 
             {/* Image Frame */}
-            <motion.div
-              className="relative max-w-4xl max-h-[75vh] aspect-[4/3] w-full border border-accent/20 select-none overflow-hidden"
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              onClick={(e) => e.stopPropagation()}
-            >
+            {galleryItems[lightboxIndex] && (
               <motion.div
-                className="relative w-full h-full cursor-zoom-in"
-                animate={{ scale: zoomLevel }}
-                onClick={toggleZoom}
-                transition={{ duration: 0.3 }}
+                className="relative max-w-4xl max-h-[75vh] aspect-[4/3] w-full border border-accent/20 select-none overflow-hidden"
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.95, opacity: 0 }}
+                transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                onClick={(e) => e.stopPropagation()}
               >
-                <Image
-                  src={galleryItems[lightboxIndex].src}
-                  alt={galleryItems[lightboxIndex].title}
-                  fill
-                  sizes="(max-width: 1200px) 100vw, 1000px"
-                  className="object-contain"
-                  priority
-                />
+                <motion.div
+                  className="relative w-full h-full cursor-zoom-in"
+                  animate={{ scale: zoomLevel }}
+                  onClick={toggleZoom}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Image
+                    src={galleryItems[lightboxIndex].src}
+                    alt={galleryItems[lightboxIndex].title}
+                    fill
+                    sizes="(max-width: 1200px) 100vw, 1000px"
+                    className="object-contain"
+                    priority
+                  />
+                </motion.div>
               </motion.div>
-            </motion.div>
+            )}
 
             {/* Footer index tracker */}
-            <div className="absolute bottom-6 left-6 text-bg-warm/60 font-serif text-sm">
-              {filteredItems.indexOf(galleryItems[lightboxIndex]) + 1} / {filteredItems.length}
-            </div>
+            {galleryItems[lightboxIndex] && (
+              <div className="absolute bottom-6 left-6 text-bg-warm/60 font-serif text-sm">
+                {filteredItems.indexOf(galleryItems[lightboxIndex]) + 1} / {filteredItems.length}
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
